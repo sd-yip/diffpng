@@ -1,0 +1,18 @@
+name:                diffpng-lib
+version:             0.2.0
+build-type:          Simple
+cabal-version:       >= 1.10
+
+executable diffpng
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , diffpng-lib
+  default-language:    Haskell2010
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     DiffPng
+  build-depends:       base >= 4.7 && < 5
+  default-language:    Haskell2010
