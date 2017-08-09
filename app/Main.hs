@@ -1,13 +1,14 @@
 module Main where
 
 import DiffPng
+import Data.Maybe
 import Options.Applicative
 
 main :: IO ()
-main = uncurry diffPng =<< execParser parser
+main = uncurry diffPng . fromMaybe ("input0", "input1") =<< execParser parser
   where
     parser = info
-      (args <**> helper)
+      (optional args <**> helper)
       fullDesc
     args = (,)
       <$> argument str (metavar "SOURCE_DIRECTORY")
