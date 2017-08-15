@@ -12,10 +12,11 @@ filesByExtension extension directory = sourceDirectory directory
   .| filterC ((== Just extension) . tailMay . takeExtension)
   .| filterMC (liftIO . doesFileExist)
 
-printEntries :: String -> IO ()
-printEntries directory = print =<< sortOn sortKey <$> entries
-  where
-    entries = runConduitRes (filesByExtension "png" directory .| sinkList)
+candidates :: FilePath -> IO [FilePath]
+candidates directory = sortOn sortKey <$> runConduitRes (filesByExtension "png" directory .| sinkList)
+
+printEntries :: FilePath -> IO ()
+printEntries directory = print =<< candidates directory
 
 diffPng :: FilePath -> FilePath -> IO ()
 diffPng source target = printEntries source >> printEntries target
