@@ -1,11 +1,11 @@
 module DiffPng where
 
+import Algorithms.NaturalSort (sortKey)
 import Conduit
-import Safe
-import Algorithms.NaturalSort
-import System.FilePath (takeExtension)
-import System.Directory (doesFileExist)
 import Data.List (sortOn)
+import Safe (tailMay)
+import System.Directory (doesFileExist)
+import System.FilePath (takeExtension)
 
 filesByExtension :: MonadResource m => String -> FilePath -> Producer m FilePath
 filesByExtension extension directory = sourceDirectory directory

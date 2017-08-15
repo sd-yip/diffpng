@@ -1,7 +1,7 @@
 module Main where
 
-import DiffPng
 import Data.Maybe
+import DiffPng
 import Options.Applicative
 
 main :: IO ()
