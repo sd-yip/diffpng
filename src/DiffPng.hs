@@ -36,7 +36,7 @@ diff p q = generateImage mixAt w h
 
 --
 
-data DiffSet = DiffSet
+data FileDiff = FileDiff
   { sourceRemainder :: [FilePath]
   , targetRemainder :: [FilePath]
   , diffEntries :: [(FilePath, FilePath)]
@@ -51,8 +51,8 @@ filesByExtension extension directory = sourceDirectory directory
 candidates :: FilePath -> IO [FilePath]
 candidates directory = sortOn sortKey <$> runConduitRes (filesByExtension "png" directory .| sinkList)
 
-diffSet :: [FilePath] -> [FilePath] -> DiffSet
-diffSet a b = DiffSet a2 b2 $ a1 `zip` b1
+fileDiff :: [FilePath] -> [FilePath] -> FileDiff
+fileDiff a b = FileDiff a2 b2 $ a1 `zip` b1
   where
     bb `bisect` aa = splitAt (length bb) aa
     (a1, a2) = b `bisect` a
@@ -69,7 +69,8 @@ writeDiffs list = zip [0..] list `forM_` output
 
 diffPng :: FilePath -> FilePath -> IO ()
 diffPng source target = do
-  result <- runExceptT $ writeDiffs . diffEntries =<< (liftIO $ diffSet <$> candidates source <*> candidates target)
+  files <- fileDiff <$> candidates source <*> candidates target
+  result <- runExceptT . writeDiffs . diffEntries $ files
   case result of
     Left e -> error e
     Right _ -> pure ()
