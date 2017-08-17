@@ -8,7 +8,7 @@ import Data.Bits (complement, xor)
 import Data.List (sortOn)
 import Safe (tailMay)
 import System.Directory (doesFileExist)
-import System.FilePath (takeExtension)
+import System.FilePath (takeBaseName, takeExtension)
 
 --
 
@@ -58,7 +58,18 @@ diffSet a b = DiffSet a2 b2 $ a1 `zip` b1
     (a1, a2) = b `bisect` a
     (b1, b2) = a `bisect` b
 
+writeDiffs :: [(FilePath, FilePath)] -> ExceptT String IO ()
+writeDiffs list = zip [0..] list `forM_` output
+  where
+    output (i, (a, b)) = liftIO . writePng path =<< (diff <$> readRGBA a <*> readRGBA b)
+      where
+        path = "diff/Diff" ++ show i ++ " " ++ takeBaseName a ++ " " ++ takeBaseName b ++ ".png"
+
 --
 
 diffPng :: FilePath -> FilePath -> IO ()
-diffPng source target = print =<< diffSet <$> candidates source <*> candidates target
+diffPng source target = do
+  result <- runExceptT $ writeDiffs . diffEntries =<< (liftIO $ diffSet <$> candidates source <*> candidates target)
+  case result of
+    Left e -> error e
+    Right _ -> pure ()
