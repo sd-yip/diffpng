@@ -1,7 +1,7 @@
 module Main where
 
-import Data.Maybe
-import DiffPng
+import Data.Maybe (fromMaybe)
+import DiffPng (diffPng)
 import Options.Applicative
 
 main :: IO ()

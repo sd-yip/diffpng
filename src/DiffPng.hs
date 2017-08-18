@@ -4,6 +4,7 @@ import Prelude (show)
 import Algorithms.NaturalSort (sortKey)
 import Codec.Picture
 import Conduit
+import Control.Category ((>>>))
 import Control.Monad.Except
 import CorePrelude
 import Data.Bits (complement, xor)
@@ -14,6 +15,8 @@ import System.Directory (doesFileExist)
 import System.FilePath ((</>), takeBaseName, takeExtension)
 import Text.Shakespeare.Text (lt)
 
+apply = ($)
+
 --
 
 type Image' = Image PixelRGBA8
@@ -23,7 +26,7 @@ readRGBA path = convertRGBA8 <$> ExceptT (readPng path)
 
 pixel :: Image' -> (Int, Int) -> PixelRGBA8
 pixel image (i, j)
-  | i < w && j < h = pixelAt image i j
+  | i < w && j < h = (image `pixelAt`) i j
   | otherwise = PixelRGBA8 0 0 0 0
   where
     w = imageWidth image
@@ -32,7 +35,7 @@ pixel image (i, j)
 diff :: Image' -> Image' -> Image'
 diff p q = generateImage mixAt w h
   where
-    w = imageWidth  p `max` imageWidth  q
+    w = imageWidth p `max` imageWidth q
     h = imageHeight p `max` imageHeight q
     mix (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
       PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
@@ -47,13 +50,13 @@ data FileDiff = FileDiff
   }
   deriving Show
 
-filesByExtension :: MonadResource m => String -> FilePath -> Producer m FilePath
-filesByExtension extension directory = sourceDirectory directory
+filesUnder :: MonadResource m => String -> FilePath -> Producer m FilePath
+extension `filesUnder` directory = sourceDirectory directory
   .| filterC ((== Just extension) . tailMay . takeExtension)
   .| filterMC (liftIO . doesFileExist)
 
 candidates :: FilePath -> IO [FilePath]
-candidates directory = sortOn sortKey <$> runConduitRes (filesByExtension "png" directory .| sinkList)
+candidates directory = sortOn sortKey <$> runConduitRes ("png" `filesUnder` directory .| sinkList)
 
 fileDiff :: [FilePath] -> [FilePath] -> FileDiff
 fileDiff a b = FileDiff a2 b2 $ a1 `zip` b1
@@ -63,10 +66,10 @@ fileDiff a b = FileDiff a2 b2 $ a1 `zip` b1
     (b1, b2) = a `bisect` b
 
 writeDiffs :: [(FilePath, FilePath)] -> ExceptT String IO ()
-writeDiffs list = zip [0..] list `forM_` \(i, (a, b)) -> do
-  d <- diff <$> readRGBA a <*> readRGBA b
+writeDiffs = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> do
+  pixels <- diff <$> readRGBA a <*> readRGBA b
   let path = "diff" </> unpack [lt|Diff#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
-  liftIO . writePng path $ d
+  liftIO . writePng path $ pixels
 
 --
 
