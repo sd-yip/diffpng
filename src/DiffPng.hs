@@ -1,11 +1,13 @@
 module DiffPng where
 
+import Prelude (show)
 import Algorithms.NaturalSort (sortKey)
 import Codec.Picture
 import Conduit
 import Control.Monad.Except
+import CorePrelude
 import Data.Bits (complement, xor)
-import Data.List (sortOn)
+import Data.List (length, sortOn, splitAt, zip)
 import Data.Text.Lazy (unpack)
 import Safe (tailMay)
 import System.Directory (doesFileExist)
