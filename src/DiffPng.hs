@@ -5,7 +5,8 @@ import Algorithms.NaturalSort (sortKey)
 import Codec.Picture
 import Conduit
 import Control.Category ((>>>))
-import Control.Monad.Except
+import Control.Monad.Except (ExceptT(..), runExceptT)
+import Control.Monad.Parallel (mapM_)
 import CorePrelude
 import Data.Bits (complement, xor)
 import Data.List (length, sortOn, splitAt, zip)
