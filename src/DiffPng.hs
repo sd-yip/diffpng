@@ -6,9 +6,11 @@ import Conduit
 import Control.Monad.Except
 import Data.Bits (complement, xor)
 import Data.List (sortOn)
+import Data.Text.Lazy (unpack)
 import Safe (tailMay)
 import System.Directory (doesFileExist)
-import System.FilePath (takeBaseName, takeExtension)
+import System.FilePath ((</>), takeBaseName, takeExtension)
+import Text.Shakespeare.Text (lt)
 
 --
 
@@ -61,7 +63,7 @@ fileDiff a b = FileDiff a2 b2 $ a1 `zip` b1
 writeDiffs :: [(FilePath, FilePath)] -> ExceptT String IO ()
 writeDiffs list = zip [0..] list `forM_` \(i, (a, b)) -> do
   d <- diff <$> readRGBA a <*> readRGBA b
-  let path = "diff/Diff" ++ show i ++ " " ++ takeBaseName a ++ " " ++ takeBaseName b ++ ".png"
+  let path = "diff" </> unpack [lt|Diff#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
   liftIO . writePng path $ d
 
 --
