@@ -12,8 +12,8 @@ import Data.Bits (complement, xor)
 import Data.List (length, sortOn, splitAt, zip)
 import Data.Text.Lazy (unpack)
 import Safe (tailMay)
-import System.Directory (doesFileExist)
-import System.FilePath ((</>), takeBaseName, takeExtension)
+import System.Directory (copyFile, createDirectoryIfMissing, doesFileExist)
+import System.FilePath ((</>), takeBaseName, takeDirectory, takeExtension)
 import Text.Shakespeare.Text (lt)
 
 apply = ($)
@@ -66,17 +66,41 @@ fileDiff a b = FileDiff a2 b2 $ a1 `zip` b1
     (a1, a2) = b `bisect` a
     (b1, b2) = a `bisect` b
 
+createParentDirectories :: FilePath -> IO ()
+createParentDirectories = createDirectoryIfMissing True . takeDirectory
+
+writePng' :: PngSavable p => FilePath -> Image p -> IO ()
+writePng' path pixels = createParentDirectories path *> writePng path pixels
+
+copyFile' :: FilePath -> FilePath -> IO ()
+copyFile' source target = createParentDirectories target *> copyFile source target
+
 writeDiffs :: [(FilePath, FilePath)] -> ExceptT String IO ()
 writeDiffs = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> do
   pixels <- diff <$> readRGBA a <*> readRGBA b
   let path = "diff" </> unpack [lt|Diff#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
-  liftIO . writePng path $ pixels
+  liftIO . writePng' path $ pixels
+
+writeCopy :: FilePath -> Int -> String -> FilePath -> IO ()
+writeCopy directory i code path = copyFile' path $ directory </> unpack [lt|#{show i}#{code} #{takeBaseName path}.png|]
+
+writeMerged :: [(FilePath, FilePath)] -> IO ()
+writeMerged = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> (write i "a" a *> write i "b" b)
+  where
+    write = writeCopy "merged"
+
+writeLeftovers :: FileDiff -> IO ()
+writeLeftovers (FileDiff r1 r2 e) = out "a" r1 *> out "b" r2
+  where
+    out code = zip [length e..] >>> mapM_ `apply` \(i, path) -> writeCopy "leftovers" i code path
 
 --
 
 diffPng :: FilePath -> FilePath -> IO ()
 diffPng source target = do
   files <- fileDiff <$> candidates source <*> candidates target
+  _ <- writeMerged . diffEntries $ files
+  _ <- writeLeftovers files
   result <- runExceptT . writeDiffs . diffEntries $ files
   case result of
     Left e -> error e
