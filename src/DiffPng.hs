@@ -9,6 +9,7 @@ import Control.Monad.Except (ExceptT(..), runExceptT)
 import Control.Monad.Parallel (mapM_)
 import CorePrelude
 import Data.Bits (complement, xor)
+import Data.Char (toLower)
 import Data.List (length, sortOn, splitAt, zip)
 import Data.Text.Lazy (unpack)
 import Safe (tailMay)
@@ -53,7 +54,7 @@ data FileDiff = FileDiff
 
 filesUnder :: MonadResource m => String -> FilePath -> Producer m FilePath
 extension `filesUnder` directory = sourceDirectory directory
-  .| filterC ((== Just extension) . tailMay . takeExtension)
+  .| filterC ((== Just extension) . tailMay . (toLower <$>) . takeExtension)
   .| filterMC (liftIO . doesFileExist)
 
 candidates :: FilePath -> IO [FilePath]
