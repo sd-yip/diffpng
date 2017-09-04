@@ -5,11 +5,13 @@ import Algorithms.NaturalSort (sortKey)
 import Codec.Picture
 import Conduit
 import Control.Category ((>>>))
+import Control.Lens (_head, over)
+import Control.Monad (unless)
 import Control.Monad.Except (ExceptT(..), runExceptT)
 import Control.Monad.Parallel (mapM_)
 import CorePrelude
-import Data.Bits (complement, xor)
-import Data.Char (toLower)
+import Data.Bits (complement, shiftR, xor)
+import Data.Char (toLower, toUpper)
 import Data.List (length, sortOn, splitAt, zip)
 import Data.Text.Lazy (unpack)
 import Safe (tailMay)
@@ -34,14 +36,23 @@ pixel image (i, j)
     w = imageWidth image
     h = imageHeight image
 
-diff :: Image' -> Image' -> Image'
-diff p q = generateImage mixAt w h
+diff :: (PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8) -> Image' -> Image' -> Image'
+diff mixing p q = generateImage mixAt w h
   where
     w = imageWidth p `max` imageWidth q
     h = imageHeight p `max` imageHeight q
-    mix (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
-      PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
-    mixAt = curry $ mix <$> pixel p <*> pixel q
+    mixAt = curry $ mixing <$> pixel p <*> pixel q
+
+mixPreserving :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
+mixPreserving (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
+  PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
+
+mixIndicating :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
+mixIndicating a b
+  | a == b = lighten a
+  | otherwise = PixelRGBA8 255 0 0 255
+  where
+    lighten (PixelRGBA8 r g b _) = PixelRGBA8 (r `shiftR` 2) (g `shiftR` 2) (b `shiftR` 2) 255
 
 --
 
@@ -76,10 +87,10 @@ writePng' path pixels = createParentDirectories path *> writePng path pixels
 copyFile' :: FilePath -> FilePath -> IO ()
 copyFile' source target = createParentDirectories target *> copyFile source target
 
-writeDiffs :: [(FilePath, FilePath)] -> ExceptT String IO ()
-writeDiffs = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> do
-  pixels <- diff <$> readRGBA a <*> readRGBA b
-  let path = "diff" </> unpack [lt|Diff#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
+writeDiffs :: (String, (PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8)) -> [(FilePath, FilePath)] -> ExceptT String IO ()
+writeDiffs (prefix, mixing) = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> do
+  pixels <- diff mixing <$> readRGBA a <*> readRGBA b
+  let path = prefix </> unpack [lt|#{over _head toUpper prefix}#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
   liftIO . writePng' path $ pixels
 
 writeCopy :: FilePath -> Int -> String -> FilePath -> IO ()
@@ -97,12 +108,12 @@ writeLeftovers (FileDiff r1 r2 e) = out "a" r1 *> out "b" r2
 
 --
 
-diffPng :: FilePath -> FilePath -> IO ()
-diffPng source target = do
+diffPng :: Bool -> Bool -> (FilePath, FilePath) -> IO ()
+diffPng indication noMerged (source, target) = do
   files <- fileDiff <$> candidates source <*> candidates target
-  _ <- writeMerged . diffEntries $ files
+  _ <- unless noMerged . writeMerged . diffEntries $ files
   _ <- writeLeftovers files
-  result <- runExceptT . writeDiffs . diffEntries $ files
-  case result of
-    Left e -> error e
-    Right _ -> pure ()
+  result <- runExceptT . out . diffEntries $ files
+  either error pure result
+  where
+    out = writeDiffs (bool ("diff", mixPreserving) ("compare", mixIndicating) indication)
