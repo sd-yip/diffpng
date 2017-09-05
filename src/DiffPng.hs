@@ -48,10 +48,10 @@ mixPreserving (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
 
 mixIndicating :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
 mixIndicating a b
-  | a == b = lighten a
+  | a == b = darken a
   | otherwise = PixelRGBA8 255 0 0 255
   where
-    lighten (PixelRGBA8 r g b _) = PixelRGBA8 (r `shiftR` 2) (g `shiftR` 2) (b `shiftR` 2) 255
+    darken (PixelRGBA8 r g b _) = PixelRGBA8 (r `shiftR` 2) (g `shiftR` 2) (b `shiftR` 2) 255
 
 --
 
