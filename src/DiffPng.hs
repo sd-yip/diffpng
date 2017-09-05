@@ -7,7 +7,6 @@ import Conduit
 import Control.Category ((>>>))
 import Control.Lens (_head, over)
 import Control.Monad (unless)
-import Control.Monad.Except (ExceptT(..), runExceptT)
 import Control.Monad.Parallel (mapM_)
 import CorePrelude
 import Data.Bits (complement, shiftR, xor)
@@ -25,8 +24,8 @@ apply = ($)
 
 type Image' = Image PixelRGBA8
 
-readRGBA :: FilePath -> ExceptT String IO Image'
-readRGBA path = convertRGBA8 <$> ExceptT (readPng path)
+readRGBA :: FilePath -> IO Image'
+readRGBA path = convertRGBA8 <$> (either error pure =<< readPng path)
 
 pixel :: Image' -> (Int, Int) -> PixelRGBA8
 pixel image (i, j)
@@ -87,11 +86,11 @@ writePng' path pixels = createParentDirectories path *> writePng path pixels
 copyFile' :: FilePath -> FilePath -> IO ()
 copyFile' source target = createParentDirectories target *> copyFile source target
 
-writeDiffs :: (String, (PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8)) -> [(FilePath, FilePath)] -> ExceptT String IO ()
+writeDiffs :: (String, (PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8)) -> [(FilePath, FilePath)] -> IO ()
 writeDiffs (prefix, mixing) = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> do
   pixels <- diff mixing <$> readRGBA a <*> readRGBA b
   let path = prefix </> unpack [lt|#{over _head toUpper prefix}#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
-  liftIO . writePng' path $ pixels
+  writePng' path $ pixels
 
 writeCopy :: FilePath -> Int -> String -> FilePath -> IO ()
 writeCopy directory i code path = copyFile' path $ directory </> unpack [lt|#{show i}#{code} #{takeBaseName path}.png|]
@@ -113,7 +112,4 @@ diffPng indication noMerged (source, target) = do
   files <- fileDiff <$> candidates source <*> candidates target
   _ <- unless noMerged . writeMerged . diffEntries $ files
   _ <- writeLeftovers files
-  result <- runExceptT . out . diffEntries $ files
-  either error pure result
-  where
-    out = writeDiffs (bool ("diff", mixPreserving) ("compare", mixIndicating) indication)
+  writeDiffs (bool ("diff", mixPreserving) ("compare", mixIndicating) indication) . diffEntries $ files
