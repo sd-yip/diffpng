@@ -22,8 +22,6 @@ import System.Directory (copyFile, createDirectoryIfMissing, doesFileExist)
 import System.FilePath ((</>), takeBaseName, takeDirectory, takeExtension)
 import Text.Shakespeare.Text (lt)
 
-apply = ($)
-
 --
 
 type Image' = Image PixelRGBA8
@@ -80,33 +78,33 @@ fileDiff a b = FileDiff a2 b2 $ a1 `zip` b1
     (a1, a2) = b `bisect` a
     (b1, b2) = a `bisect` b
 
+consumeIndexed :: Int -> ((Int, a) -> IO ()) -> [a] -> IO ()
+consumeIndexed initialIndex consumer = (consumer `mapM_`) . zip [initialIndex..]
+
 createParentDirectories :: FilePath -> IO ()
-createParentDirectories = createDirectoryIfMissing True . takeDirectory
+createParentDirectories = takeDirectory >>> createDirectoryIfMissing True -- Recursively
 
-writePng' :: PngSavable p => FilePath -> Image p -> IO ()
-writePng' path pixels = createParentDirectories path *> writePng path pixels
-
-copyFile' :: FilePath -> FilePath -> IO ()
-copyFile' source target = createParentDirectories target *> copyFile source target
-
-writeDiffs :: (String, (PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8)) -> [(FilePath, FilePath)] -> IO ()
-writeDiffs (prefix, mixing) = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> do
+writeDiffs :: (String, PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8) -> [(FilePath, FilePath)] -> IO ()
+writeDiffs (prefix, mixing) = consumeIndexed 0 $ \(i, (a, b)) -> do
   pixels <- diff mixing <$> readRGBA a <*> readRGBA b
-  let path = prefix </> unpack [lt|#{over _head toUpper prefix}#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
-  writePng' path $ pixels
+  let targetPath = prefix </> unpack [lt|#{over _head toUpper prefix}#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
+  createParentDirectories targetPath *> writePng targetPath pixels
 
-writeCopy :: FilePath -> Int -> String -> FilePath -> IO ()
-writeCopy directory i code path = copyFile' path $ directory </> unpack [lt|#{show i}#{code} #{takeBaseName path}.png|]
+writePlainCopy :: FilePath -> Int -> String -> FilePath -> IO ()
+writePlainCopy targetDirectory i code sourcePath =
+  copyFile' sourcePath $ targetDirectory </> unpack [lt|#{show i}#{code} #{takeBaseName sourcePath}.png|]
+  where
+    copyFile' source target = createParentDirectories target *> copyFile source target
 
 writeMerged :: [(FilePath, FilePath)] -> IO ()
-writeMerged = zip [0..] >>> mapM_ `apply` \(i, (a, b)) -> (write i "a" a *> write i "b" b)
+writeMerged = consumeIndexed 0 $ \(i, (a, b)) -> writeCopy i "a" a *> writeCopy i "b" b
   where
-    write = writeCopy "merged"
+    writeCopy = writePlainCopy "merged"
 
 writeLeftovers :: FileDiff -> IO ()
-writeLeftovers (FileDiff r1 r2 e) = out "a" r1 *> out "b" r2
+writeLeftovers (FileDiff ra rb e) = writeCopies "a" ra *> writeCopies "b" rb
   where
-    out code = zip [length e..] >>> mapM_ `apply` \(i, path) -> writeCopy "leftovers" i code path
+    writeCopies code = consumeIndexed (length e) $ \(i, path) -> writePlainCopy "leftovers" i code path
 
 --
 
