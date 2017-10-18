@@ -1,16 +1,20 @@
 module DiffPng where
 
+import CorePrelude
 import Prelude (show)
 import Algorithms.NaturalSort (sortKey)
-import Codec.Picture
-import Conduit
+import Codec.Picture (convertRGBA8, readPng)
+import Codec.Picture.Png (PngSavable, writePng)
+import Codec.Picture.Types (Image, PixelRGBA8(..), generateImage, imageHeight, imageWidth, pixelAt)
+import Conduit (filterC, filterMC, sinkList, sourceDirectory)
 import Control.Category ((>>>))
 import Control.Lens (_head, over)
 import Control.Monad (unless)
 import Control.Monad.Parallel (mapM_)
-import CorePrelude
+import Control.Monad.Trans.Resource (MonadResource)
 import Data.Bits (complement, shiftR, xor)
 import Data.Char (toLower, toUpper)
+import Data.Conduit (Producer, (.|), runConduitRes)
 import Data.List (length, sortOn, splitAt, zip)
 import Data.Text.Lazy (unpack)
 import Safe (tailMay)
