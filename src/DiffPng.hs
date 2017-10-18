@@ -44,12 +44,12 @@ diff mixing p q = generateImage mixed w h
     h = imageHeight p `max` imageHeight q
     mixed = curry $ mixing <$> pixel p <*> pixel q
 
-mixPreserving :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
-mixPreserving (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
+preservativeMixing :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
+preservativeMixing (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
   PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
 
-mixIndicating :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
-mixIndicating a b
+indicativeMixing :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
+indicativeMixing a b
   | a == b = darken a
   | otherwise = PixelRGBA8 255 0 0 255
   where
@@ -109,8 +109,8 @@ writeLeftovers (FileDiff ra rb e) = writeCopies "a" ra *> writeCopies "b" rb
 --
 
 diffPng :: Bool -> Bool -> (FilePath, FilePath) -> IO ()
-diffPng indication noMerged (source, target) = do
+diffPng indicative noMerged (source, target) = do
   files <- fileDiff <$> candidates source <*> candidates target
   forkExec . unless noMerged . writeMerged $ diffEntries files
   forkExec $ writeLeftovers files
-  writeDiffs (bool ("diff", mixPreserving) ("compare", mixIndicating) indication) . diffEntries $ files
+  writeDiffs (bool ("diff", preservativeMixing) ("compare", indicativeMixing) indicative) $ diffEntries files

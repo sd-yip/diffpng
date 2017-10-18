@@ -12,7 +12,7 @@ main = id =<< execParser parser
       (options <**> helper)
       fullDesc
     options = diffPng'
-      <$> switch (short 'I' <> long "indicate" <> help "Indicate differences onto each source image")
+      <$> switch (short 'I' <> long "indicative" <> help "Indicate differences onto each source image")
       <*> (optional $ (,)
         <$> argument str (metavar "SOURCE_DIRECTORY")
         <*> argument str (metavar "TARGET_DIRECTORY"))
