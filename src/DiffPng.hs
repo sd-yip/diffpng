@@ -64,7 +64,6 @@ data FileDiff = FileDiff
   , targetRemainder :: [FilePath]
   , diffEntries :: [(FilePath, FilePath)]
   }
-  deriving Show
 
 filesUnder :: MonadResource m => String -> FilePath -> Producer m FilePath
 extension `filesUnder` directory = sourceDirectory directory
