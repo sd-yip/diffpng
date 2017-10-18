@@ -40,11 +40,11 @@ pixel image (i, j)
     h = imageHeight image
 
 diff :: (PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8) -> Image' -> Image' -> Image'
-diff mixing p q = generateImage mixAt w h
+diff mixing p q = generateImage mixed w h
   where
     w = imageWidth p `max` imageWidth q
     h = imageHeight p `max` imageHeight q
-    mixAt = curry $ mixing <$> pixel p <*> pixel q
+    mixed = curry $ mixing <$> pixel p <*> pixel q
 
 mixPreserving :: PixelRGBA8 -> PixelRGBA8 -> PixelRGBA8
 mixPreserving (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
