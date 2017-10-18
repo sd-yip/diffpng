@@ -10,7 +10,7 @@ import Conduit (filterC, filterMC, sinkList, sourceDirectory)
 import Control.Category ((>>>))
 import Control.Lens (_head, over)
 import Control.Monad (unless)
-import Control.Monad.Parallel (mapM_)
+import Control.Monad.Parallel (forkExec, mapM_)
 import Control.Monad.Trans.Resource (MonadResource)
 import Data.Bits (complement, shiftR, xor)
 import Data.Char (toLower, toUpper)
@@ -114,6 +114,6 @@ writeLeftovers (FileDiff r1 r2 e) = out "a" r1 *> out "b" r2
 diffPng :: Bool -> Bool -> (FilePath, FilePath) -> IO ()
 diffPng indication noMerged (source, target) = do
   files <- fileDiff <$> candidates source <*> candidates target
-  _ <- unless noMerged . writeMerged . diffEntries $ files
-  _ <- writeLeftovers files
+  forkExec . unless noMerged . writeMerged $ diffEntries files
+  forkExec $ writeLeftovers files
   writeDiffs (bool ("diff", mixPreserving) ("compare", mixIndicating) indication) . diffEntries $ files
