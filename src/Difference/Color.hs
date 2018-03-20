@@ -1,8 +1,15 @@
 module Difference.Color where
 
-import Codec.Picture.Types (Image, PixelRGBA8 (..))
+import Codec.Picture.Types (Image, Pixel, PixelRGBA8 (..))
 import Data.Bits (complement, shiftR, xor)
 import Difference (Difference (..), Strategy (..))
+
+class Pixel a => Color a where
+  clearColor :: a
+
+instance Color PixelRGBA8 where
+  clearColor = PixelRGBA8 0 0 0 0
+
 
 instance Difference PixelRGBA8 where
   -- XOR difference of pixels
