@@ -12,6 +12,7 @@ pixel image (i, j)
     w = imageWidth image
     h = imageHeight image
 
+
 instance (Color a, Difference a) => Difference (Image a) where
   difference s p q = generateImage diff w h
     where
