@@ -12,7 +12,7 @@ instance Color PixelRGBA8 where
 
 
 instance Difference PixelRGBA8 where
-  -- XOR difference of pixels
+  -- Simple XOR difference
   difference Preservative (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
     PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
 
