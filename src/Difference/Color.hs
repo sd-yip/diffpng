@@ -16,7 +16,7 @@ instance Difference PixelRGBA8 where
   difference Preservative (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
     PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
 
-  -- Mark as red for any differences
+  -- Mark as red for any unequal bits
   difference Indicative p q
     | p == q = darken p
     | otherwise = PixelRGBA8 255 0 0 255
