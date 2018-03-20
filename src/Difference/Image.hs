@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module Difference.Image () where
 
 import Codec.Picture.Types (Image, Pixel, generateImage, imageHeight, imageWidth, pixelAt)
@@ -13,7 +14,7 @@ pixel image (i, j)
     h = imageHeight image
 
 
-instance (Color a, Difference a) => Difference (Image a) where
+instance (Color a, Difference s a) => Difference s (Image a) where
   difference s p q = generateImage diff w h
     where
       w = imageWidth p `max` imageWidth q

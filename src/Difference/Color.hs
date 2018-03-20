@@ -1,8 +1,12 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Difference.Color where
 
 import Codec.Picture.Types (Image, Pixel, PixelRGBA8 (..))
 import Data.Bits (complement, shiftR, xor)
-import Difference (Difference (..), Strategy (..))
+import Difference (Difference (..))
+
+data ColorComparison = Preservative | Indicative
+
 
 class Pixel a => Color a where
   clearColor :: a
@@ -11,7 +15,7 @@ instance Color PixelRGBA8 where
   clearColor = PixelRGBA8 0 0 0 0
 
 
-instance Difference PixelRGBA8 where
+instance Difference ColorComparison PixelRGBA8 where
   -- Simple XOR difference
   difference Preservative (PixelRGBA8 pr pg pb pa) (PixelRGBA8 qr qg qb qa) =
     PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
