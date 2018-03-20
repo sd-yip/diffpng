@@ -10,8 +10,8 @@ instance Difference PixelRGBA8 where
     PixelRGBA8 (pr `xor` qr) (pg `xor` qg) (pb `xor` qb) (complement pa `xor` qa)
 
   -- Mark as red for any differences
-  difference Indicative a b
-    | a == b = darken a
+  difference Indicative p q
+    | p == q = darken p
     | otherwise = PixelRGBA8 255 0 0 255
     where
       darken (PixelRGBA8 r g b _) = PixelRGBA8 (r `shiftR` 2) (g `shiftR` 2) (b `shiftR` 2) 255
