@@ -4,10 +4,11 @@ module Difference.List where
 import Data.List (sortOn)
 import Difference (DifferenceT (..))
 
-data SaturatedZip a = SaturatedZip {
-  difference :: Either [a] [a],
-  intersection :: [(a, a)]
-}
+data SaturatedZip a =
+  SaturatedZip {
+    difference :: Either [a] [a],
+    intersection :: [(a, a)]
+  }
 
 
 instance Ord b => DifferenceT (a -> b) [] SaturatedZip a where
