@@ -26,7 +26,7 @@ data ImageOptions a =
 
 instance Difference (FileNameOptions, Int) FilePath where
   difference (FileNameOptions directory prefix extension, i) p q =
-    directory </> prefix ++ show i ++ ' ' : takeBaseName p ++ ' ' : takeBaseName q ++ name extension
+    directory </> prefix ++ show i ++ ' ' : takeBaseName p ++ ' ' : takeBaseName q ++ '.' : name extension
 
 instance Difference ColorComparison (Image a) => DifferenceT (ImageOptions a) IO FilePath where
   differenceT = undefined -- TODO
