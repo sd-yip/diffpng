@@ -12,7 +12,7 @@ import Data.Function (on)
 import System.Directory (doesFileExist)
 
 import Difference (DifferenceT (..))
-import Difference.Directory.Extension (FileExtension (..), matchExtension)
+import Difference.File.Extension (FileExtension (..), matchExtension)
 import Difference.List (Zipped)
 
 filesUnder :: FileExtension -> FilePath -> IO [FilePath]

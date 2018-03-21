@@ -3,20 +3,11 @@ module Difference.Image.File where
 
 import Codec.Picture.Types (Image)
 import Control.Applicative (liftA2)
-import Data.Functor.Identity (Identity)
 import Data.Function (on)
-import System.FilePath ((</>), takeBaseName)
 
 import Difference (Difference (..), DifferenceT (..))
-import Difference.Directory.Extension (FileExtension (..))
+import Difference.File (FileOptions)
 import Difference.Image.Color (ColorComparison)
-
-data FileOptions =
-  FileOptions {
-    directory :: FilePath,
-    prefix :: String,
-    extension :: FileExtension
-  }
 
 data ImageOptions a =
   ImageOptions {
@@ -26,10 +17,6 @@ data ImageOptions a =
     fileOptions :: FileOptions
   }
 
-
-instance Difference (FileOptions, Int) FilePath where
-  difference (FileOptions directory prefix extension, i) p q =
-    directory </> prefix ++ show i ++ ' ' : takeBaseName p ++ ' ' : takeBaseName q ++ '.' : name extension
 
 instance Difference ColorComparison (Image a) => DifferenceT (ImageOptions a, Int) IO FilePath where
   differenceT (ImageOptions read write c f, i) p q = write' (difference (f, i) p q) =<< p `diff` q

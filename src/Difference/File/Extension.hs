@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Difference.Directory.Extension (
+module Difference.File.Extension (
   FileExtension (name),
   fileExtension,
   matchExtension
