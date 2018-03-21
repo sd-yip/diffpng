@@ -3,7 +3,7 @@ module Difference.Image () where
 import Codec.Picture.Types (Image (imageHeight, imageWidth), Pixel (pixelAt), generateImage)
 
 import Difference (Difference (..))
-import Difference.Color (Color (..))
+import Difference.Image.Color (Color (..))
 
 pixel :: Color a => Image a -> (Int, Int) -> a
 pixel image (i, j)

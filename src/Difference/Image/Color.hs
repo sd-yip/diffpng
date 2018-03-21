@@ -1,4 +1,4 @@
-module Difference.Color where
+module Difference.Image.Color where
 
 import Codec.Picture.Types (Image, Pixel, PixelRGBA8 (..))
 import Data.Bits (complement, shiftR, xor)

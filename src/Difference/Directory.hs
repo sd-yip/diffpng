@@ -9,12 +9,11 @@ import CorePrelude (liftIO)
 import Data.Conduit ((.|), runConduitRes)
 import Data.Conduit.Combinators (sinkList, sourceDirectory)
 import Data.Function (on)
-import Data.Functor.Identity (Identity (..))
 import System.Directory (doesFileExist)
 
 import Difference (DifferenceT (..))
 import Difference.Directory.Extension (FileExtension (..), matchExtension)
-import Difference.List (SaturatedZip)
+import Difference.List (Zipped)
 
 filesUnder :: FileExtension -> FilePath -> IO [FilePath]
 extension `filesUnder` directory = runConduitRes $ sourceDirectory directory
@@ -29,6 +28,6 @@ data FileEnumeration a =
   }
 
 
-instance Ord a => DifferenceT (FileEnumeration a) Identity (IO :. SaturatedZip) FilePath where
+instance Ord a => DifferenceT (FileEnumeration a) (IO :. Zipped :. []) FilePath where
   differenceT options =
-    (O .) . liftA2 (differenceT (sorting options)) `on` (extension options `filesUnder`) . runIdentity
+    ((O . O) .) . liftA2 (differenceT (sorting options)) `on` (extension options `filesUnder`)
