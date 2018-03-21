@@ -1,24 +1,34 @@
-{-# LANGUAGE LambdaCase, TemplateHaskell, QuasiQuotes #-}
-module Difference.Directory (
-  FileExtension (name),
-  fileExtension
-) where
+module Difference.Directory where
 
-import Data.Char (isAsciiLower)
+import Conduit (filterC, filterMC, sinkList, sourceDirectory)
+import Control.Applicative (liftA2)
+import Control.Compose ((:.) (..))
+import CorePrelude (liftIO)
+import Data.Char (toLower)
+import Data.Conduit ((.|), runConduitRes)
+import Data.Function (on)
+import Data.Functor.Identity (Identity, runIdentity)
+import Safe (tailMay)
+import System.Directory (doesFileExist)
+import System.FilePath (takeExtension)
+
 import Difference (DifferenceT (..))
-import Language.Haskell.TH (Exp, Q)
-import Language.Haskell.TH.Quote (QuasiQuoter (..))
+import Difference.Directory.Extension (FileExtension (..))
+import Difference.List (SaturatedZip)
 
-newtype FileExtension =
-  FileExtension {
-    name :: String
+filesUnder :: FileExtension -> FilePath -> IO [FilePath]
+extension `filesUnder` directory = runConduitRes $ sourceDirectory directory
+  .| filterC (any (== name extension) . tailMay . (toLower <$>) . takeExtension)
+  .| filterMC (liftIO . doesFileExist)
+  .| sinkList
+
+data FileEnumeration a =
+  FileEnumeration {
+    extension :: FileExtension,
+    sorting :: Ord a => FilePath -> a
   }
 
-fileExtension :: QuasiQuoter
-fileExtension =
-  QuasiQuoter {
-    quoteExp = \case
-      name
-        | all isAsciiLower name -> [|FileExtension name|]
-        | otherwise -> fail "Lower ASCII only"
-  }
+
+instance Ord a => DifferenceT (FileEnumeration a) Identity (IO :. SaturatedZip) FilePath where
+  differenceT options =
+    (O .) . liftA2 (differenceT (sorting options)) `on` (extension options `filesUnder`) . runIdentity

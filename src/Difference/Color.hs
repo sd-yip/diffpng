@@ -1,8 +1,8 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
 module Difference.Color where
 
 import Codec.Picture.Types (Image, Pixel, PixelRGBA8 (..))
 import Data.Bits (complement, shiftR, xor)
+
 import Difference (Difference (..))
 
 data ColorComparison = Preservative | Indicative

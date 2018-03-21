@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module Difference.List where
 
 import Data.List (sortOn)
+
 import Difference (DifferenceT (..))
 
 data SaturatedZip a =

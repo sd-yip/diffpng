@@ -2,7 +2,7 @@
 module Difference where
 
 import Control.Applicative (liftA2)
-import Control.Monad.Identity (Identity)
+import Data.Functor.Identity (Identity)
 
 class DifferenceT s f g a where
   differenceT :: s -> f a -> f a -> g a

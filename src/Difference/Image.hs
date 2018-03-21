@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module Difference.Image () where
 
 import Codec.Picture.Types (Image, Pixel, generateImage, imageHeight, imageWidth, pixelAt)
+
 import Difference (Difference (..))
 import Difference.Color (Color (..))
 
