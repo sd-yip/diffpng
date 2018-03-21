@@ -1,4 +1,6 @@
-module Difference.Directory where
+module Difference.Directory (
+  FileEnumeration (..)
+) where
 
 import Conduit (filterC, filterMC, sinkList, sourceDirectory)
 import Control.Applicative (liftA2)
