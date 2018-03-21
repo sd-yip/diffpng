@@ -8,7 +8,7 @@ import Control.Compose ((:.) (..))
 import CorePrelude (liftIO)
 import Data.Conduit ((.|), runConduitRes)
 import Data.Function (on)
-import Data.Functor.Identity (Identity, runIdentity)
+import Data.Functor.Identity (Identity (..))
 import System.Directory (doesFileExist)
 
 import Difference (DifferenceT (..))

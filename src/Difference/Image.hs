@@ -1,6 +1,6 @@
 module Difference.Image () where
 
-import Codec.Picture.Types (Image, Pixel, generateImage, imageHeight, imageWidth, pixelAt)
+import Codec.Picture.Types (Image (imageHeight, imageWidth), Pixel (pixelAt), generateImage)
 
 import Difference (Difference (..))
 import Difference.Color (Color (..))
