@@ -2,11 +2,12 @@ module Difference.Directory (
   FileEnumeration (..)
 ) where
 
-import Conduit (filterC, filterMC, sinkList, sourceDirectory)
+import Conduit (filterC, filterMC)
 import Control.Applicative (liftA2)
 import Control.Compose ((:.) (..))
 import CorePrelude (liftIO)
 import Data.Conduit ((.|), runConduitRes)
+import Data.Conduit.Combinators (sinkList, sourceDirectory)
 import Data.Function (on)
 import Data.Functor.Identity (Identity (..))
 import System.Directory (doesFileExist)
