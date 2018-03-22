@@ -5,14 +5,14 @@ import Difference.Image.Color (ColorComparison (..))
 
 data Destinations =
   Destinations {
-    differences :: ColorComparison -> Maybe FilePath,
-    originals :: Maybe ColorComparison -> Maybe FilePath
+    generated :: ColorComparison -> Maybe FilePath,
+    original :: Maybe ColorComparison -> Maybe FilePath
   }
 
 defaultDestinations :: Destinations
-defaultDestinations = Destinations differences originals
+defaultDestinations = Destinations generated original
   where
-    differences Preservative = Just "diff"
-    differences Indicative = Just "compare"
-    originals (Just _) = Just "merged"
-    originals Nothing = Just "leftovers"
+    generated Preservative = Just "diff"
+    generated Indicative = Just "compare"
+    original (Just _) = Just "merged"
+    original Nothing = Just "leftovers"
