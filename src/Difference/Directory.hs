@@ -29,5 +29,5 @@ data FileEnumeration a =
 
 
 instance Ord a => DifferenceT (FileEnumeration a) (IO :. Zipped :. []) FilePath where
-  differenceT options =
-    ((O . O) .) . liftA2 (differenceT (sorting options)) `on` (extension options `filesUnder`)
+  differenceT (FileEnumeration extension sorting) =
+    ((O . O) .) . liftA2 (differenceT sorting) `on` (extension `filesUnder`)
