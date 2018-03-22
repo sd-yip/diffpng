@@ -1,6 +1,5 @@
 module Difference where
 
-import Data.Function (on)
 import Data.Functor.Identity (Identity (..))
 
 class DifferenceT s f a where
