@@ -4,7 +4,7 @@ module Difference.File.BasePath (
 
 import Conduit (filterC, filterMC)
 import Control.Applicative (liftA2)
-import CorePrelude (liftIO)
+import Control.Monad.IO.Class (liftIO)
 import Data.Conduit ((.|), runConduitRes)
 import Data.Conduit.Combinators (sinkList, sourceDirectory)
 import Data.Function (on)
