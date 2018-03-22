@@ -1,4 +1,4 @@
-module Difference.File.Enumeration (
+module Difference.File.BasePath (
   FileEnumeration (..)
 ) where
 

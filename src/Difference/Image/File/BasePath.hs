@@ -1,4 +1,4 @@
-module Difference.Image.Directory where
+module Difference.Image.File.BasePath where
 
 import Control.Compose ((:.) (..))
 
