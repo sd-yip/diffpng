@@ -1,4 +1,4 @@
-module Difference.Directory (
+module Difference.File.Enumeration (
   FileEnumeration (..)
 ) where
 
