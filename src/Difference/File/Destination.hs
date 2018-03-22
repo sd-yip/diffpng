@@ -1,6 +1,5 @@
 module Difference.File.Destination where
 
-import Difference (DifferenceT (..))
 import Difference.Image.Color (ColorComparison (..))
 
 data OutputType = Generated ColorComparison | Original (Maybe ColorComparison)

@@ -4,14 +4,13 @@ module Difference.File.BasePath (
 
 import Conduit (filterC, filterMC)
 import Control.Applicative (liftA2)
-import Control.Compose ((:.) (..))
 import CorePrelude (liftIO)
 import Data.Conduit ((.|), runConduitRes)
 import Data.Conduit.Combinators (sinkList, sourceDirectory)
 import Data.Function (on)
 import System.Directory (doesFileExist)
 
-import Difference (DifferenceT (..))
+import Difference (Difference (..))
 import Difference.File.Extension (FileExtension (..), matchExtension)
 import Difference.List (Zipped)
 
@@ -24,10 +23,10 @@ extension `filesUnder` directory = runConduitRes $ sourceDirectory directory
 data FileEnumeration a =
   FileEnumeration {
     extension :: FileExtension,
-    sorting :: Ord a => FilePath -> a
+    sorting :: FilePath -> a
   }
 
 
-instance Ord a => DifferenceT (FileEnumeration a) (IO :. Zipped :. []) FilePath where
-  differenceT (FileEnumeration extension sorting) =
-    ((O . O) .) . liftA2 (differenceT sorting) `on` (extension `filesUnder`)
+instance Ord a => Difference (FileEnumeration a) FilePath (IO (Zipped [] FilePath)) where
+  difference (FileEnumeration extension sorting) =
+    liftA2 (difference sorting) `on` (extension `filesUnder`)

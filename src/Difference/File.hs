@@ -2,7 +2,7 @@ module Difference.File where
 
 import System.FilePath ((</>), takeBaseName)
 
-import Difference (Difference (..))
+import Difference (DifferenceI (..))
 import Difference.File.Extension (FileExtension (..))
 
 data FileOptions =
@@ -13,6 +13,6 @@ data FileOptions =
   }
 
 
-instance Difference (FileOptions, Int) FilePath where
-  difference (FileOptions directory prefix extension, i) p q =
+instance DifferenceI (FileOptions, Int) FilePath where
+  differenceI (FileOptions directory prefix extension, i) p q =
     directory </> prefix ++ show i ++ ' ' : takeBaseName p ++ ' ' : takeBaseName q ++ '.' : name extension

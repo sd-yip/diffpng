@@ -2,7 +2,7 @@ module Difference.Image () where
 
 import Codec.Picture.Types (Image (imageHeight, imageWidth), Pixel (pixelAt), generateImage)
 
-import Difference (Difference (..))
+import Difference (DifferenceI (..), difference)
 import Difference.Image.Color (Color (..))
 
 pixel :: Color a => Image a -> (Int, Int) -> a
@@ -14,8 +14,8 @@ pixel image (i, j)
     h = imageHeight image
 
 
-instance (Color a, Difference s a) => Difference s (Image a) where
-  difference s p q = generateImage diff w h
+instance (Color a, DifferenceI s a) => DifferenceI s (Image a) where
+  differenceI s p q = generateImage diff w h
     where
       w = imageWidth p `max` imageWidth q
       h = imageHeight p `max` imageHeight q

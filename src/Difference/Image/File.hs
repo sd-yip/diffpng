@@ -5,7 +5,7 @@ import Codec.Picture.Types (Image)
 import Control.Applicative (liftA2)
 import Data.Function (on)
 
-import Difference (Difference (..), DifferenceT (..))
+import Difference (Difference (..), DifferenceI)
 import Difference.File (FileOptions)
 import Difference.Image.Color (ColorComparison)
 
@@ -18,8 +18,8 @@ data ImageOptions a =
   }
 
 
-instance Difference ColorComparison (Image a) => DifferenceT (ImageOptions a, Int) IO FilePath where
-  differenceT (ImageOptions read write c f, i) p q = write' (difference (f, i) p q) =<< p `diff` q
+instance DifferenceI ColorComparison (Image a) => Difference (ImageOptions a, Int) FilePath (IO FilePath) where
+  difference (ImageOptions read write c f, i) p q = write' (difference (f, i) p q) =<< p `diff` q
     where
       diff = liftA2 (difference c) `on` read
       write' file = (file <$) . write file
