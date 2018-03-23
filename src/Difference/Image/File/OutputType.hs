@@ -1,7 +1,7 @@
 module Difference.Image.File.OutputType where
 
 import Difference (Difference (..))
-import Difference.File.OutputType (OutputType)
+import Difference.Image.Color (ColorComparison)
 
 {-
 consumeIndexed :: Int -> ((Int, a) -> IO ()) -> [a] -> IO ()
@@ -33,12 +33,12 @@ writeLeftovers (FileDiff ra rb e) = writeCopies "a" ra *> writeCopies "b" rb
     writeCopies code = consumeIndexed (length e) $ \(i, path) -> writePlainCopy "leftovers" i code path
 -}
 
-data OutputOptions =
-  OutputOptions {
-    outputType :: OutputType,
+data GenerationOptions =
+  GenerationOptions {
+    colorComparison :: ColorComparison,
     outputPath :: String
   }
 
 
-instance Difference OutputOptions FilePath (IO [FilePath]) where
+instance Difference GenerationOptions FilePath (IO [FilePath]) where
   difference _ _ _ = undefined
