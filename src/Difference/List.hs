@@ -1,5 +1,6 @@
 module Difference.List where
 
+import Data.Function (on)
 import Data.List (sortOn)
 
 import Difference (Difference (..))
@@ -12,12 +13,12 @@ data Zipped f a =
 
 
 instance Ord b => Difference (a -> b) [a] (Zipped [] a) where
-  difference sorting p q
-    | np > nq = unbalanced Left (`zip` q') $ splitAt nq p'
-    | otherwise = unbalanced Right (p' `zip`) $ splitAt np q'
+  difference = (zipped `on`) . sortOn
     where
-      p' = sortOn sorting p
-      q' = sortOn sorting q
-      np = length p
-      nq = length q
-      unbalanced side zipping (a1, a2) = Zipped (side a2) (zipping a1)
+      make zipRest sourceSide (prefix, suffix) = sourceSide suffix `Zipped` zipRest prefix
+      zipped p q
+        | np > nq = make (`zip` q) Left $ splitAt nq p
+        | otherwise = make (p `zip`) Right $ splitAt np q
+        where
+          np = length p
+          nq = length q
