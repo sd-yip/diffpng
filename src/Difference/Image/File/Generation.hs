@@ -5,11 +5,6 @@ import Difference (Difference (..))
 import Difference.File.BasePath (BaseFilePath)
 import Difference.Image.File (ImageOptions)
 
-{-
-createParentDirectories :: FilePath -> IO ()
-createParentDirectories = takeDirectory >>> createDirectoryIfMissing True -- Recursively
--}
-
 generateOutputs :: Difference (ImageOptions a, Int) FilePath (IO FilePath) =>
     Int -> ImageOptions a -> [(FilePath, FilePath)] -> IO [FilePath]
 generateOutputs startIndex options inputs = consume `traverse` (inputs `zip` [startIndex..])

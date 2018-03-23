@@ -1,10 +1,15 @@
 module Difference.File where
 
-import System.FilePath ((</>), takeBaseName)
+import Control.Category ((>>>))
+import System.Directory (createDirectoryIfMissing)
+import System.FilePath ((</>), takeBaseName, takeDirectory)
 
 import Difference (DifferenceI (..))
 import Difference.File.BasePath (BaseFilePath (..))
 import Difference.File.Extension (FileExtension)
+
+createParentDirectories :: FilePath -> IO ()
+createParentDirectories = takeDirectory >>> createDirectoryIfMissing True -- Recursively
 
 data FileOptions =
   FileOptions {
