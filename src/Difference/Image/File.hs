@@ -18,7 +18,8 @@ data ImageOptions a =
   }
 
 
-instance DifferenceI ColorComparison (Image a) => Difference (ImageOptions a, Int) FilePath (IO FilePath) where
+instance DifferenceI ColorComparison (Image a) =>
+    Difference (ImageOptions a, Int) FilePath (IO FilePath) where
   difference (ImageOptions read write c f, i) p q = write' (difference (f, i) p q) =<< p `diff` q
     where
       diff = liftA2 (difference c) `on` read

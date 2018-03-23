@@ -16,9 +16,9 @@ import Difference.List (Zipped)
 
 filesUnder :: FileExtension -> FilePath -> IO [FilePath]
 extension `filesUnder` directory = runConduitRes $ sourceDirectory directory
-  .| filterC (matchExtension extension)
-  .| filterMC (liftIO . doesFileExist)
-  .| sinkList
+    .| filterC (matchExtension extension)
+    .| filterMC (liftIO . doesFileExist)
+    .| sinkList
 
 data FileEnumeration a =
   FileEnumeration {
