@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Difference.Image.File.Output where
 
+import qualified Control.Monad.Parallel as P
 import System.Directory (copyFile)
 import System.FilePath ((</>), takeBaseName, takeDirectory)
 
@@ -11,7 +12,7 @@ import Difference.Image.File (ImageOptions)
 
 writeGenerated :: Difference (ImageOptions a, Int) FilePath (IO FilePath) =>
     Int -> ImageOptions a -> [(FilePath, FilePath)] -> IO [FilePath]
-writeGenerated startIndex options inputs = consume `traverse` (inputs `zip` [startIndex..])
+writeGenerated startIndex options inputs = consume `P.mapM` (inputs `zip` [startIndex..])
   where
     consume ((p, q), i) = difference (options, i) p q
 
