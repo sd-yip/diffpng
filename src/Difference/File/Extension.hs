@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Difference.File.Extension (
-  FileExtension (name),
+  FileExtension,
   fileExtension,
   matchExtension
 ) where
@@ -11,7 +11,7 @@ import Language.Haskell.TH.Quote (QuasiQuoter (..))
 import Safe (tailMay)
 import System.FilePath (takeExtension)
 
-newtype FileExtension = FileExtension { name :: String }
+newtype FileExtension = FileExtension String
 
 fileExtension :: QuasiQuoter
 fileExtension =
@@ -24,4 +24,8 @@ fileExtension =
   }
 
 matchExtension :: FileExtension -> FilePath -> Bool
-matchExtension extension = any (== name extension) . tailMay . (toLower <$>) . takeExtension
+matchExtension extension = any (== show extension) . tailMay . (toLower <$>) . takeExtension
+
+
+instance Show FileExtension where
+  show (FileExtension name) = name
