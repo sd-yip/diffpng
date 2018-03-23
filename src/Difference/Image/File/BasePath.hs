@@ -1,7 +1,13 @@
 module Difference.Image.File.BasePath where
 
 import Difference (Difference (..))
-import Difference.File.Destination (OutputType)
+import Difference.File.OutputType (OutputType)
 
-instance Difference () FilePath [(OutputType, FilePath)] where
+data DifferenceOptions =
+  DifferenceOptions {
+    outputPathMay :: OutputType -> Maybe String
+  }
+
+
+instance Difference DifferenceOptions FilePath (IO [(OutputType, FilePath)]) where
   difference _ _ _ = undefined

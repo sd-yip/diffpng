@@ -1,4 +1,4 @@
-module Difference.File.Destination where
+module Difference.File.OutputType where
 
 import Difference.Image.Color (ColorComparison (..))
 
