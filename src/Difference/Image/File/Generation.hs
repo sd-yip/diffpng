@@ -1,4 +1,4 @@
-module Difference.Image.File.OutputType where
+module Difference.Image.File.Generation where
 
 import Difference (Difference (..))
 import Difference.File.BasePath (BaseFilePath)
@@ -16,22 +16,6 @@ writeDiffs (prefix, mixing) = consumeIndexed 0 $ \(i, (a, b)) -> do
   pixels <- diff mixing <$> readRGBA a <*> readRGBA b
   let targetPath = prefix </> unpack [lt|#{over _head toUpper prefix}#{show i} #{takeBaseName a} #{takeBaseName b}.png|]
   createParentDirectories targetPath *> writePng targetPath pixels
-
-writePlainCopy :: FilePath -> Int -> String -> FilePath -> IO ()
-writePlainCopy targetDirectory i code sourcePath =
-  copyFile' sourcePath $ targetDirectory </> unpack [lt|#{show i}#{code} #{takeBaseName sourcePath}.png|]
-  where
-    copyFile' source target = createParentDirectories target *> copyFile source target
-
-writeMerged :: [(FilePath, FilePath)] -> IO ()
-writeMerged = consumeIndexed 0 $ \(i, (a, b)) -> writeCopy i "a" a *> writeCopy i "b" b
-  where
-    writeCopy = writePlainCopy "merged"
-
-writeLeftovers :: FileDiff -> IO ()
-writeLeftovers (FileDiff ra rb e) = writeCopies "a" ra *> writeCopies "b" rb
-  where
-    writeCopies code = consumeIndexed (length e) $ \(i, path) -> writePlainCopy "leftovers" i code path
 -}
 
 data GenerationOptions =
@@ -41,5 +25,5 @@ data GenerationOptions =
   }
 
 
-instance Difference GenerationOptions BaseFilePath (IO [FilePath]) where
+instance Difference GenerationOptions [FilePath] (IO [FilePath]) where
   difference _ _ _ = undefined

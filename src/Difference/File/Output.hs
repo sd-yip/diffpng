@@ -1,4 +1,4 @@
-module Difference.File.OutputType where
+module Difference.File.Output where
 
 import Difference.File.BasePath (BaseFilePath (..))
 import Difference.Image.Color (ColorComparison (..))
