@@ -14,7 +14,7 @@ import Difference.File.BasePath (BaseFilePath (..))
 import Difference.Image.File (ImageOptions)
 
 copyFile' :: FilePath -> FilePath -> IO FilePath
-copyFile' source target = target <$ copyFile source target <* createParentDirectories target
+copyFile' source destination = destination <$ copyFile source destination <* createParentDirectories destination
 
 
 writeGenerated :: Difference (ImageOptions a, Int) FilePath (IO FilePath) =>
@@ -27,5 +27,5 @@ writeOriginal :: Int -> (FileOptions, String) -> [FilePath] -> IO [FilePath]
 writeOriginal startIndex (FileOptions directory prefix extension, code) inputs =
   consume `traverse` (inputs `zip` [startIndex ..])
     where
-      consume (originalFile, i) = copyFile' originalFile $ unBaseFilePath directory
-          </> show i ++ code ++ ' ' : takeBaseName originalFile ++ '.' : show extension
+      consume (original, i) = copyFile' original $ unBaseFilePath directory
+          </> show i ++ code ++ ' ' : takeBaseName original ++ '.' : show extension
