@@ -3,6 +3,7 @@ module Difference.Image.File.Output where
 
 import Difference (Difference (..))
 import Difference.File.BasePath (BaseFilePath)
+import Difference.Image.Color (ColorComparison)
 import Difference.Image.File (ImageOptions)
 
 {-
@@ -28,3 +29,6 @@ writeGenerated :: Difference (ImageOptions a, Int) FilePath (IO FilePath) =>
 writeGenerated startIndex options inputs = consume `traverse` (inputs `zip` [startIndex..])
   where
     consume ((p, q), i) = difference (options, i) p q
+
+writeOriginal :: Int -> Maybe ColorComparison -> [FilePath] -> IO [FilePath]
+writeOriginal startIndex t inputs = undefined
