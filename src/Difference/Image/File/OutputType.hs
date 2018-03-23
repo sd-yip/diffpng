@@ -1,6 +1,7 @@
 module Difference.Image.File.OutputType where
 
 import Difference (Difference (..))
+import Difference.File.BasePath (BaseFilePath)
 import Difference.Image.Color (ColorComparison)
 
 {-
@@ -36,9 +37,9 @@ writeLeftovers (FileDiff ra rb e) = writeCopies "a" ra *> writeCopies "b" rb
 data GenerationOptions =
   GenerationOptions {
     colorComparison :: ColorComparison,
-    outputPath :: String
+    outputPath :: BaseFilePath
   }
 
 
-instance Difference GenerationOptions FilePath (IO [FilePath]) where
+instance Difference GenerationOptions BaseFilePath (IO [FilePath]) where
   difference _ _ _ = undefined

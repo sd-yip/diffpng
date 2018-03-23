@@ -1,11 +1,13 @@
 module Difference.File.OutputType where
 
+import Difference.File.BasePath (BaseFilePath (..))
 import Difference.Image.Color (ColorComparison (..))
 
 data OutputType = Generated ColorComparison | Original (Maybe ColorComparison)
 
-defaultPath :: OutputType -> FilePath
-defaultPath (Generated Preservative) = "diff"
-defaultPath (Generated Indicative) = "compare"
-defaultPath (Original (Just _)) = "merged"
-defaultPath (Original Nothing) = "leftovers"
+defaultPath :: OutputType -> BaseFilePath
+defaultPath t = BaseFilePath $ case t of
+  Generated Preservative -> "diff"
+  Generated Indicative -> "compare"
+  Original (Just _) -> "merged"
+  Original Nothing -> "leftovers"
