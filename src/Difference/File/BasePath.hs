@@ -30,6 +30,6 @@ data FileEnumeration a =
   }
 
 
-instance Ord a => Difference (FileEnumeration a) BaseFilePath (IO (Zipped [] FilePath)) where
+instance Ord a => Difference (FileEnumeration a) BaseFilePath (IO ([] `Zipped` FilePath)) where
   difference (FileEnumeration extension sorting) =
     liftA2 (difference sorting) `on` (extension `filesUnder`) . unBaseFilePath
