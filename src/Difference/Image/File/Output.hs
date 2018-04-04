@@ -12,9 +12,10 @@ import Difference (Difference (..))
 import Difference.File (FileOptions (..), createParentDirectories)
 import Difference.File.BasePath (BaseFilePath (..))
 import Difference.Image.File (ImageOptions)
+import Difference.Utility ((*<))
 
 copyFile' :: FilePath -> FilePath -> IO FilePath
-copyFile' source destination = destination <$ copyFile source destination <* createParentDirectories destination
+copyFile' source destination = destination <$ copyFile source destination *< createParentDirectories destination
 
 
 writeGenerated :: Difference (ImageOptions a, Int) FilePath (IO FilePath) =>

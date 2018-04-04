@@ -8,6 +8,7 @@ import Data.Function (on)
 import Difference (Difference (..), DifferenceI)
 import Difference.File (FileOptions, createParentDirectories)
 import Difference.Image.Color (ColorComparison)
+import Difference.Utility ((*<))
 
 data ImageOptions a =
   ImageOptions {
@@ -23,4 +24,4 @@ instance DifferenceI ColorComparison (Image a) =>
   difference (ImageOptions read write c f, i) p q = write' (difference (f, i) p q) =<< p `diff` q
     where
       diff = liftA2 (difference c) `on` read
-      write' file image = file <$ write file image <* createParentDirectories file
+      write' file image = file <$ write file image *< createParentDirectories file
